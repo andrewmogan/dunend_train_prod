@@ -185,14 +185,17 @@ def main(cfg):
             f.write(gen_submission_script(cfg))
             f.close()
 
-    except (KeyError, OSError, IsADirectoryError):
+    except (KeyError, OSError, IsADirectoryError) as e:
         if os.path.isdir(jsdir):
             shutil.rmtree(jsdir)
         if os.path.isdir(sdir):
             os.remove(sdir)
+        print('Encountered an error. Aborting...')
+        raise e
 
     print(f'Created job source scripts at {jsdir}')
     print(f'Job output will be sent to {sdir}')
+    return True
 
 if __name__ == '__main__':
     import sys
