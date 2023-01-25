@@ -1,0 +1,22 @@
+
+LARNDSIM_REPOSITORY: /app/larnd-sim
+LARNDSIM_SCRIPT: simulate_pixels_prod.py
+STORAGE_DIR: ./storage
+NUM_EVENTS:  10
+
+SLURM_WORK_DIR:  /lscratch/$USER
+SLURM_NUM_JOBS:  1        # number of jobs to submit
+SLURM_PARTITION: neutrino # partition
+SLURM_GPU:       a100     # GPU type
+SLURM_TIME:      1:00:00  # max time HH:MM:SS
+SLURM_MEM:       40       # total in GB
+SLURM_CPU:       4        # number of CPUs
+
+# items found under larndsim
+SEARCH_PIXEL_LAYOUT:   multi_tile_layout-3.0.40.yaml
+SEARCH_DET_PROPERTIES: ndlar-module.yaml
+SEARCH_RESPONSE:       response_38.npy
+
+# items found under dunend_train_prod
+SEARCH_GEOMETRY: nd_hall_only_lar_TRUE_1.gdml
+SEARCH_MPVMPR:   bomb.yaml
