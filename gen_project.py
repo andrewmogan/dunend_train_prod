@@ -159,8 +159,8 @@ def main(cfg):
 
     try:
         # Create the job source and the storage directories
-        os.mkdir(jsdir)
         os.mkdir(sdir)
+        os.mkdir(jsdir)
 
         # Log the config contents
         with open(os.path.join(jsdir,'source.yaml'),'w') as f:
