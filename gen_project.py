@@ -51,25 +51,19 @@ def parse(data):
 
             res[word]=path
 
-    # Process ID to name some paths
-    pid = os.getpid()
-
-    # define a job source directory
-    jsdir = f'job_source_{pid}'
-    if os.path.isdir(jsdir):
-        OSError(f'JOB_SOURCE_DIR: {jsdir} already exists.')
-    res['JOB_SOURCE_DIR'] = jsdir
-
     # Check the storage directory and create this job's output directory
     if not 'STORAGE_DIR' in cfg:
         raise KeyError('STORAGE_DIR key is missing in the configuration file.')
     if not os.path.isdir(cfg['STORAGE_DIR']):
         raise FileNotFoundError(f'Storage path {cfg["STORAGE_DIR"]} is invalid.')
 
-    sdir=os.path.join(cfg['STORAGE_DIR'],f'output_{pid}')
+    sdir=os.path.abspath(os.path.join(cfg['STORAGE_DIR'],f'output_{os.getpid()}'))
     if os.path.isdir(sdir):
         raise OSError(f'Storage directory already have a sub-dir {sdir}')
     res['STORAGE_DIR']=sdir
+
+    # define a job source directory
+    res['JOB_SOURCE_DIR'] = os.path.join(sdir,'job_source')
 
     return res
 
@@ -190,9 +184,6 @@ def main(cfg):
         with open(os.path.join(jsdir,'run.sh'),'w') as f:
             f.write(gen_submission_script(cfg))
             f.close()
-
-        # Copy the job source directory to the storage
-        shutil.copytree(jsdir,os.path.join(sdir,os.path.basename(jsdir)))
 
     except (KeyError, OSError, IsADirectoryError):
         if os.path.isdir(jsdir):
