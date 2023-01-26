@@ -123,8 +123,7 @@ def gen_g4macro(mpv_config):
     return macro
 
 def gen_job_script(cfg):
-    script=f'''
-#!/bin/bash
+    script=f'''#!/bin/bash
 date
 echo "starting a job"
 
@@ -166,8 +165,7 @@ echo "Exiting"
 
 
 def gen_submission_script(cfg):
-    script=f'''
-#!/bin/bash
+    script=f'''#!/bin/bash
 #SBATCH --job-name=dntp-{os.getpid()}
 #SBATCH --nodes=1
 #SBATCH --partition={cfg['SLURM_PARTITION']}
