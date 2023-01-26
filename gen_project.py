@@ -195,7 +195,7 @@ def gen_submission_script(cfg):
     if 'SLURM_NODELIST' in cfg:
         script += f'#SBATCH --nodelist="{cfg["SLURM_EXCLUDE"]}"\n'
 
-    script += '''
+    script += f'''
 mkdir -p {cfg['SLURM_WORK_DIR']} 
 cd {cfg['SLURM_WORK_DIR']}
 
@@ -285,6 +285,7 @@ def main(cfg):
 
     print(f'Created job source scripts at {jsdir}')
     print(f'Job output will be sent to {sdir}')
+    print(f'\nTo submit a job, type:\n\nsbatch {os.path.join(jsdir,"submit.sh")}\n')
     return True
 
 if __name__ == '__main__':
