@@ -174,8 +174,8 @@ def gen_submission_script(cfg):
 #SBATCH --job-name=dntp-{os.getpid()}
 #SBATCH --nodes=1
 #SBATCH --partition={cfg['SLURM_PARTITION']}
-#SBATCH --output=job-%A-%a.out
-#SBATCH --error=job-%A-%a.err
+#SBATCH --output={cfg['STORAGE_DIR']}/slurm-%A-%a.out
+#SBATCH --error={cfg['STORAGE_DIR']}/slurm-%A-%a.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task={cfg['SLURM_CPU']}
 #SBATCH --mem-per-cpu={round(cfg['SLURM_MEM']/cfg['SLURM_CPU'])}
