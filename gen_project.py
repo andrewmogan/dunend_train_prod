@@ -139,23 +139,34 @@ OUTPUT_NAME={cfg['JOB_OUTPUT_ID']}
 
 date
 echo "Running edep-sim"
+echo edep-sim -g {os.path.basename(cfg['GEOMETRY'])} \
+-e {int(cfg['NUM_EVENTS'])} \
+-o {cfg['JOB_OUTPUT_ID']}-edepsim.root \
+{os.path.basename(cfg['G4_MACRO_PATH'])}
 edep-sim -g {os.path.basename(cfg['GEOMETRY'])} \
 -e {int(cfg['NUM_EVENTS'])} \
 -o {cfg['JOB_OUTPUT_ID']}-edepsim.root \
-{os.path.basename(cfg['G4_MACRO_PATH'])} &> p0_edepsim.log
+{os.path.basename(cfg['G4_MACRO_PATH'])}
 
 date
 echo "Running dumpTree"
-dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5 &>> p1_dump.log
+echo dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5
+dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5
 
 date
 echo "Running larnd-sim"
+echo {cfg['LARNDSIM_SCRIPT']} --pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT'])} \
+--detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
+--response_file={os.path.basename(cfg['RESPONSE'])} \
+--event_separator=eventID \
+--input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
+--output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5 
 {cfg['LARNDSIM_SCRIPT']} --pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT'])} \
 --detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
 --response_file={os.path.basename(cfg['RESPONSE'])} \
 --event_separator=eventID \
 --input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
---output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5 &>> p2_lrandsim.log
+--output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5 
 
 date
 echo "Exiting"
