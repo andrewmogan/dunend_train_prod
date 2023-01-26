@@ -146,12 +146,12 @@ echo edep-sim -g {os.path.basename(cfg['GEOMETRY'])} \
 edep-sim -g {os.path.basename(cfg['GEOMETRY'])} \
 -e {int(cfg['NUM_EVENTS'])} \
 -o {cfg['JOB_OUTPUT_ID']}-edepsim.root \
-{os.path.basename(cfg['G4_MACRO_PATH'])}
+{os.path.basename(cfg['G4_MACRO_PATH'])} &>> log_edepsim.txt
 
 date
 echo "Running dumpTree"
 echo dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5
-dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5
+dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5 &>> log_dumptree.txt
 
 date
 echo "Running larnd-sim"
@@ -166,7 +166,7 @@ echo {cfg['LARNDSIM_SCRIPT']} --pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT
 --response_file={os.path.basename(cfg['RESPONSE'])} \
 --event_separator=eventID \
 --input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
---output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5 
+--output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5 &>> log_larndsim.txt
 
 date
 echo "Exiting"
