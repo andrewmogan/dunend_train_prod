@@ -1,4 +1,5 @@
 import yaml, os, pathlib, shutil
+import numpy as np
 from yaml import Loader
 import larndsim
 
@@ -89,13 +90,17 @@ def parse(data):
         res['JOB_IMAGE_NAME']=res['SINGULARITY_IMAGE']
 
     # define paths to be bound to the singularity session
-    res['BIND_FLAG']=''
-    storage_bind_point = _get_top_dir(res['STORAGE_DIR'])
-    bflag = f'-B {storage_bind_point}'
-    if not res['STORE_IMAGE']:
-        image_bind_point = _get_top_dir(res['JOB_IMAGE_NAME'])
-        if not image_bind_point == storage_bind_point:
-            bflag += f',{image_bind_point}'
+    bind_points = []
+    bind_points.append(_get_top_dir(res['STORAGE_DIR']))
+    bind_points.append(_get_top_dir(res['SLURM_WORK_DIR']))
+    bind_points.append(_get_top_dir(res['JOB_IMAGE_NAME']))
+    bind_points.append(_get_top_dir(res['JOB_SOURCE_DIR']))
+    bflag = None
+    for pt in np.unique(bind_points):
+        if bflag is None:
+            bflag=f'-B {str(pt)}'
+        else:
+            brlag += f',{str(pt)}'
     res['BIND_FLAG'] = bflag
 
     return res
@@ -187,7 +192,7 @@ cd {cfg['JOB_WORK_DIR']}
 
 chmod 774 run.sh
 
-singularity exec --nv {cfg['BIND_FLAG']} {cfg['JOB_IMAGE_NAME']} run.sh
+singularity exec --nv {cfg['BIND_FLAG']} {cfg['JOB_IMAGE_NAME']} ./run.sh
     
     '''
     return script
