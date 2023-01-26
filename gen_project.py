@@ -71,8 +71,9 @@ def parse(data):
     res['JOB_SOURCE_DIR'] = os.path.join(sdir,'job_source')
 
     # add job work directory and output name
-    res['JOB_WORK_DIR']  = 'job_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
-    res['JOB_OUTPUT_ID'] = 'output_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
+    res['JOB_WORK_DIR'  ] = 'job_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
+    res['JOB_OUTPUT_ID' ] = 'output_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
+    res['JOB_LOG_DIR'   ] = os.path.join(res['STORAGE_DIR'],'slurm_logs')
 
     # ensure singularity image is valid
     if not 'SINGULARITY_IMAGE' in cfg:
@@ -157,11 +158,6 @@ echo "Running larnd-sim"
 --output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5 &>> p2_lrandsim.log
 
 date
-echo "Copying the output (removing response file as it's too large)"
-rm {os.path.basename(cfg['RESPONSE'])}
-scp -r {cfg['JOB_WORK_DIR']} {cfg['STORAGE_DIR']}
-
-date
 echo "Exiting"
     
     '''
@@ -174,8 +170,8 @@ def gen_submission_script(cfg):
 #SBATCH --job-name=dntp-{os.getpid()}
 #SBATCH --nodes=1
 #SBATCH --partition={cfg['SLURM_PARTITION']}
-#SBATCH --output={cfg['STORAGE_DIR']}/slurm-%A-%a.out
-#SBATCH --error={cfg['STORAGE_DIR']}/slurm-%A-%a.err
+#SBATCH --output={cfg['JOB_LOG_DIR']}/slurm-%A-%a.out
+#SBATCH --error={cfg['JOB_LOG_DIR']}/slurm-%A-%a.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task={cfg['SLURM_CPU']}
 #SBATCH --mem-per-cpu={round(cfg['SLURM_MEM']/cfg['SLURM_CPU'])}
@@ -193,6 +189,12 @@ cd {cfg['JOB_WORK_DIR']}
 chmod 774 run.sh
 
 singularity exec --nv {cfg['BIND_FLAG']} {cfg['JOB_IMAGE_NAME']} ./run.sh
+
+date
+echo "Copying the output (removing response file as it's too large)"
+rm {os.path.basename(cfg['RESPONSE'])}
+cd ..
+scp -r {cfg['JOB_WORK_DIR']} {cfg['STORAGE_DIR']}/
     
     '''
     return script
@@ -209,11 +211,16 @@ def main(cfg):
 
     jsdir = cfg['JOB_SOURCE_DIR']
     sdir  = cfg['STORAGE_DIR']
+    ldir  = cfg['JOB_LOG_DIR']
 
     try:
         # Create the job source and the storage directories
-        os.mkdir(sdir)
-        os.mkdir(jsdir)
+        print(f'Creating a dir: {sdir}')
+        os.makedirs(sdir)
+        print(f'Creating a dir: {jsdir}')
+        os.makedirs(jsdir)
+        print(f'Creating a dir: {ldir}')
+        os.makedirs(ldir)
         print(f'Using a singularity image: {cfg["SINGULARITY_IMAGE"]}')
         if cfg['STORE_IMAGE']:
             print('Copying the singularity image file.')
@@ -250,10 +257,12 @@ def main(cfg):
     except (KeyError, OSError, IsADirectoryError) as e:
         if os.path.isdir(jsdir):
             shutil.rmtree(jsdir)
-        if os.path.isfile(cfg['JOB_IMAGE_NAME']):
+        if cfg['STORE_IMAGE'] and os.path.isfile(cfg['JOB_IMAGE_NAME']):
             os.remove(cfg['JOB_IMAGE_NAME'])
         if os.path.isdir(sdir):
             os.rmdir(sdir)
+        if os.path.isdir(ldir):
+            os.rmdir(ldir)
         print('Encountered an error. Aborting...')
         raise e
 
