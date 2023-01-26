@@ -100,7 +100,7 @@ def parse(data):
         if bflag is None:
             bflag=f'-B {str(pt)}'
         else:
-            brlag += f',{str(pt)}'
+            bflag += f',{str(pt)}'
     res['BIND_FLAG'] = bflag
 
     return res
