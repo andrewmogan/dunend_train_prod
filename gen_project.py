@@ -174,11 +174,17 @@ def gen_submission_script(cfg):
 #SBATCH --error={cfg['JOB_LOG_DIR']}/slurm-%A-%a.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task={cfg['SLURM_CPU']}
-#SBATCH --mem-per-cpu={round(cfg['SLURM_MEM']/cfg['SLURM_CPU'])}
+#SBATCH --mem-per-cpu={round(cfg['SLURM_MEM']/cfg['SLURM_CPU'])}G
 #SBATCH --time={cfg['SLURM_TIME']}                                                                                                
 #SBATCH --gpus={cfg['SLURM_GPU']}:1
 #SBATCH --array=1-{cfg['SLURM_NUM_JOBS']}
+'''
+    if 'SLURM_EXCLUDE' in cfg:
+        script += f'#SBATCH --exclude="{cfg["SLURM_EXCLUDE"]}"\n'
+    if 'SLURM_NODELIST' in cfg:
+        script += f'#SBATCH --nodelist="{cfg["SLURM_EXCLUDE"]}"\n'
 
+    script += '''
 mkdir -p {cfg['SLURM_WORK_DIR']} 
 cd {cfg['SLURM_WORK_DIR']}
 

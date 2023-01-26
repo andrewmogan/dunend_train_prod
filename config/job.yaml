@@ -14,6 +14,8 @@ SLURM_GPU:       a100     # GPU type
 SLURM_TIME:      1:00:00  # max time HH:MM:SS
 SLURM_MEM:       40       # total in GB
 SLURM_CPU:       4        # number of CPUs
+SLURM_NODELIST: ''
+SLURM_EXCLUDE:  ''
 
 # items found under larndsim
 SEARCH_PIXEL_LAYOUT:   multi_tile_layout-3.0.40.yaml
