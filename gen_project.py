@@ -9,6 +9,10 @@ REQUIRED = dict(GEOMETRY=os.path.join(pathlib.Path(__file__).parent.resolve(),'g
     RESPONSE='larndsim/bin',
     )
 
+def _get_top_dir(path):
+    p=pathlib.Path(path)
+    return p.parents[len(p.parents)-2]
+
 def parse(data):
     cfg = yaml.safe_load(data)
     res = dict(cfg)
@@ -57,13 +61,42 @@ def parse(data):
     if not os.path.isdir(cfg['STORAGE_DIR']):
         raise FileNotFoundError(f'Storage path {cfg["STORAGE_DIR"]} is invalid.')
 
-    sdir=os.path.abspath(os.path.join(cfg['STORAGE_DIR'],f'output_{os.getpid()}'))
+    sdir=os.path.abspath(os.path.join(cfg['STORAGE_DIR'],f'production_{os.getpid()}'))
     if os.path.isdir(sdir):
         raise OSError(f'Storage directory already have a sub-dir {sdir}')
     res['STORAGE_DIR']=sdir
 
     # define a job source directory
     res['JOB_SOURCE_DIR'] = os.path.join(sdir,'job_source')
+
+    # add job work directory and output name
+    res['JOB_WORK_DIR']  = 'job_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
+    res['JOB_OUTPUT_ID'] = 'output_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
+
+    # ensure singularity image is valid
+    if not 'SINGULARITY_IMAGE' in cfg:
+        raise KeyError('SINGULARITY_IMAGE must be specified in the config.')
+    if not os.path.isfile(cfg['SINGULARITY_IMAGE']):
+        raise FileNotFoundError(f'Singularity image invalid in the config:{cfg["SINGULARITY_IMAGE"]}')
+    # resolve symbolic link
+    res['SINGULARITY_IMAGE']=os.path.abspath(os.path.realpath(cfg['SINGULARITY_IMAGE']))
+
+    # define a copied image name
+    if cfg.get('STORE_IMAGE',True):
+        res['JOB_IMAGE_NAME']=os.path.join(sdir,f'image_{os.getpid()}.sif')
+        res['STORE_IMAGE']=True
+    else:
+        res['JOB_IMAGE_NAME']=res['SINGULARITY_IMAGE']
+
+    # define paths to be bound to the singularity session
+    res['BIND_FLAG']=''
+    storage_bind_point = _get_top_dir(res['STORAGE_DIR'])
+    bflag = f'-B {storage_bind_point}'
+    if not res['STORE_IMAGE']:
+        image_bind_point = _get_top_dir(res['JOB_IMAGE_NAME'])
+        if not image_bind_point == storage_bind_point:
+            bflag += f',{image_bind_point}'
+    res['BIND_FLAG'] = bflag
 
     return res
 
@@ -89,9 +122,50 @@ def gen_g4macro(mpv_config):
     '''
     return macro
 
+def gen_job_script(cfg):
+    script=f'''
+#!/bin/bash
+date
+echo "starting a job"
+
+printenv &> env.txt
+
+OUTPUT_NAME={cfg['JOB_OUTPUT_ID']}
+
+date
+echo "Running edep-sim"
+edep-sim -g {os.path.basename(cfg['GEOMETRY'])} \
+-e {int(cfg['NUM_EVENTS'])} \
+-o {cfg['JOB_OUTPUT_ID']}-edepsim.root \
+{os.path.basename(cfg['G4_MACRO_PATH'])} &> p0_edepsim.log
+
+date
+echo "Running dumpTree"
+dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5 &>> p1_dump.log
+
+date
+echo "Running larnd-sim"
+{cfg['LARNDSIM_SCRIPT']} --pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT'])} \
+--detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
+--response_file={os.path.basename(cfg['RESPONSE'])} \
+--event_separator=eventID \
+--input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
+--output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5 &>> p2_lrandsim.log
+
+date
+echo "Copying the output (removing response file as it's too large)"
+rm {os.path.basename(cfg['RESPONSE'])}
+scp -r {cfg['JOB_WORK_DIR']} {cfg['STORAGE_DIR']}
+
+date
+echo "Exiting"
+    
+    '''
+
+    return script
+
+
 def gen_submission_script(cfg):
-    job_work_dir = 'dtnp_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
-    output_id = 'output_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
     script=f'''
 #!/bin/bash
 #SBATCH --job-name=dntp-{os.getpid()}
@@ -109,37 +183,13 @@ def gen_submission_script(cfg):
 mkdir -p {cfg['SLURM_WORK_DIR']} 
 cd {cfg['SLURM_WORK_DIR']}
 
-scp -r {cfg['JOB_SOURCE_DIR']} {job_work_dir}
-cd {job_work_dir}
+scp -r {cfg['JOB_SOURCE_DIR']} {cfg['JOB_WORK_DIR']}
 
-date
-echo "starting a job"
+cd {cfg['JOB_WORK_DIR']}
 
-printenv &> env.txt
+chmod 774 run.sh
 
-OUTPUT_NAME={output_id}
-
-date
-echo "Running edep-sim"
-edep-sim -g {cfg['GEOMETRY']} -e {int(cfg['NUM_EVENTS'])} -o $OUTPUT_NAME-edepsim.root {cfg['G4_MACRO_PATH']} &> p0_edepsim.log
-
-date
-echo "Running dumpTree"
-dumpTree.py $OUTPUT_NAME-edepsim.root $OUTPUT_NAME-edepsim.h5 &>> p1_dump.log
-
-date
-echo "Running larnd-sim"
-{cfg['LARNDSIM_SCRIPT']} --pixel_layout={cfg['PIXEL_LAYOUT']} \
---detector_properties={cfg['DET_PROPERTIES']} --response_file={cfg['RESPONSE']} --event_separator=eventID \
---input_filename=$OUTPUT_NAME-edepsim.h5 --output_filename=$OUTPUT_NAME-larndsim.h5 &>> p2_lrandsim.log
-
-date
-echo "Copying the output (removing response file as it's too large)"
-rm {cfg['RESPONSE']}
-scp -r {job_work_dir} {cfg['STORAGE_DIR']}
-
-date
-echo "Exiting"
+singularity exec --nv {cfg['BIND_FLAG']} {cfg['JOB_IMAGE_NAME']} run.sh
     
     '''
     return script
@@ -161,6 +211,11 @@ def main(cfg):
         # Create the job source and the storage directories
         os.mkdir(sdir)
         os.mkdir(jsdir)
+        print(f'Using a singularity image: {cfg["SINGULARITY_IMAGE"]}')
+        if cfg['STORE_IMAGE']:
+            print('Copying the singularity image file.')
+            print(f'Destination: {cfg["JOB_IMAGE_NAME"]}')
+            shutil.copyfile(cfg['SINGULARITY_IMAGE'],cfg['JOB_IMAGE_NAME'])
 
         # Log the config contents
         with open(os.path.join(jsdir,'source.yaml'),'w') as f:
@@ -179,17 +234,23 @@ def main(cfg):
             f.write(gen_g4macro(os.path.basename(cfg['MPVMPR'])))
             f.close()
 
-
-        # Generate a run script
-        with open(os.path.join(jsdir,'run.sh'),'w') as f:
+        # Generate a submission script
+        with open(os.path.join(jsdir,'submit.sh'),'w') as f:
             f.write(gen_submission_script(cfg))
+            f.close()
+
+        # Generate a job script
+        with open(os.path.join(jsdir,'run.sh'),'w') as f:
+            f.write(gen_job_script(cfg))
             f.close()
 
     except (KeyError, OSError, IsADirectoryError) as e:
         if os.path.isdir(jsdir):
             shutil.rmtree(jsdir)
+        if os.path.isfile(cfg['JOB_IMAGE_NAME']):
+            os.remove(cfg['JOB_IMAGE_NAME'])
         if os.path.isdir(sdir):
-            os.remove(sdir)
+            os.rmdir(sdir)
         print('Encountered an error. Aborting...')
         raise e
 

@@ -3,6 +3,9 @@ LARNDSIM_REPOSITORY: /app/larnd-sim
 LARNDSIM_SCRIPT: simulate_pixels_prod.py
 STORAGE_DIR: ./storage
 NUM_EVENTS:  10
+SINGULARITY_IMAGE: ../images/larcv2_ub20.04-cuda11.6-pytorch1.13-larndsim.sif
+#SINGULARITY_IMAGE: /sdf/group/neutrino/images/develop.sif
+STORE_IMAGE: False
 
 SLURM_WORK_DIR:  /lscratch/$USER
 SLURM_NUM_JOBS:  1        # number of jobs to submit
