@@ -2,6 +2,7 @@ import yaml, os, pathlib, shutil
 import numpy as np
 from yaml import Loader
 import larndsim
+from datetime import timedelta
 
 REQUIRED = dict(GEOMETRY=os.path.join(pathlib.Path(__file__).parent.resolve(),'geometry'),
     MPVMPR=os.path.join(pathlib.Path(__file__).parent.resolve(),'config'),
@@ -16,6 +17,9 @@ def _get_top_dir(path):
 
 def parse(data):
     cfg = yaml.safe_load(data)
+    # SLURM_TIME converted to seconds automatically
+    # convert back to HH:MM:SS format
+    cfg['SLURM_TIME'] = str(timedelta(seconds=cfg['SLURM_TIME']))
     res = dict(cfg)
     # Check required configuration files
     for word in REQUIRED.keys():
