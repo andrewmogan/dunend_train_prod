@@ -75,8 +75,8 @@ def parse(data):
     res['JOB_SOURCE_DIR'] = os.path.join(sdir,'job_source')
 
     # add job work directory and output name
-    res['JOB_WORK_DIR'  ] = 'job_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
-    res['JOB_OUTPUT_ID' ] = 'output_${SLURM_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
+    res['JOB_WORK_DIR'  ] = 'job_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
+    res['JOB_OUTPUT_ID' ] = 'output_${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}'
     res['JOB_LOG_DIR'   ] = os.path.join(res['STORAGE_DIR'],'slurm_logs')
 
     # ensure singularity image is valid
@@ -133,6 +133,27 @@ def gen_g4macro(mpv_config):
     return macro
 
 def gen_job_script(cfg):
+
+    cmd_edepsim = f'''
+edep-sim -g {os.path.basename(cfg['GEOMETRY'])} \
+-e {int(cfg['NUM_EVENTS'])} \
+-o {cfg['JOB_OUTPUT_ID']}-edepsim.root \
+{os.path.basename(cfg['G4_MACRO_PATH'])}
+    '''
+
+    cmd_dumptree = f'''
+dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5
+    '''
+
+    cmd_larndsim = f'''
+{cfg['LARNDSIM_SCRIPT']} --pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT'])} \
+--detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
+--response_file={os.path.basename(cfg['RESPONSE'])} \
+--event_separator=eventID \
+--input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
+--output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5
+    '''
+
     script=f'''#!/bin/bash
 date
 echo "starting a job"
@@ -143,34 +164,18 @@ OUTPUT_NAME={cfg['JOB_OUTPUT_ID']}
 
 date
 echo "Running edep-sim"
-echo edep-sim -g {os.path.basename(cfg['GEOMETRY'])} \
--e {int(cfg['NUM_EVENTS'])} \
--o {cfg['JOB_OUTPUT_ID']}-edepsim.root \
-{os.path.basename(cfg['G4_MACRO_PATH'])}
-edep-sim -g {os.path.basename(cfg['GEOMETRY'])} \
--e {int(cfg['NUM_EVENTS'])} \
--o {cfg['JOB_OUTPUT_ID']}-edepsim.root \
-{os.path.basename(cfg['G4_MACRO_PATH'])} &>> log_edepsim.txt
+echo {cmd_edepsim}
+{cmd_edepsim} &>> log_edepsim.txt
 
 date
 echo "Running dumpTree"
-echo dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5
-dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5 &>> log_dumptree.txt
+echo {cmd_dumptree}
+{cmd_dumptree} &>> log_dumptree.txt
 
 date
 echo "Running larnd-sim"
-echo {cfg['LARNDSIM_SCRIPT']} --pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT'])} \
---detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
---response_file={os.path.basename(cfg['RESPONSE'])} \
---event_separator=eventID \
---input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
---output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5 
-{cfg['LARNDSIM_SCRIPT']} --pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT'])} \
---detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
---response_file={os.path.basename(cfg['RESPONSE'])} \
---event_separator=eventID \
---input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
---output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5 &>> log_larndsim.txt
+echo {cmd_larndsim}
+{cmd_larndsim} &>> log_larndsim.txt
 
 date
 echo "Exiting"
