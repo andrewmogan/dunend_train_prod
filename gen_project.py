@@ -150,6 +150,7 @@ dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h
 --detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
 --response_file={os.path.basename(cfg['RESPONSE'])} \
 --event_separator=eventID \
+--save_memory='resource.npz' \
 --input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
 --output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5
     '''
