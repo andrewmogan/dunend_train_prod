@@ -134,19 +134,19 @@ def gen_g4macro(mpv_config):
 
 def gen_job_script(cfg):
 
-    cmd_edepsim = f'''
-edep-sim -g {os.path.basename(cfg['GEOMETRY'])} \
+    cmd_edepsim = f'''edep-sim \
+-g {os.path.basename(cfg['GEOMETRY'])} \
 -e {int(cfg['NUM_EVENTS'])} \
 -o {cfg['JOB_OUTPUT_ID']}-edepsim.root \
 {os.path.basename(cfg['G4_MACRO_PATH'])}
     '''
 
-    cmd_dumptree = f'''
-dumpTree.py {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5
+    cmd_dumptree = f'''dumpTree.py \
+    {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5
     '''
 
-    cmd_larndsim = f'''
-{cfg['LARNDSIM_SCRIPT']} --pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT'])} \
+    cmd_larndsim = f'''{cfg['LARNDSIM_SCRIPT']} \
+--pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT'])} \
 --detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
 --response_file={os.path.basename(cfg['RESPONSE'])} \
 --event_separator=eventID \
