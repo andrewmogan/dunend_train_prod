@@ -160,7 +160,7 @@ scp -r {cfg['JOB_WORK_DIR']} {cfg['STORAGE_DIR']}/
 
             # Generate a submission script
             with open(os.path.join(jsdir,'submit.sh'),'w') as f:
-                f.write(gen_submission_script(cfg))
+                f.write(self.gen_submission_script(cfg))
                 f.close()
 
             #
