@@ -4,7 +4,7 @@
 
 SEED: -1
 GeneratorMPV:
-  NumEvent: [3,6]
+  NumEvent: [2,8]
   NumParticle: [2,6]
   XRange: [-2900,3900]
   YRange: [-2100,700]
@@ -40,7 +40,7 @@ GeneratorMPV:
       Weight:   1
 
 GeneratorMPR:
-  NumEvent: [2,10]
+  NumEvent: [1,10]
   NumParticle: [1,1]
   XRange: [-2900,3900]
   YRange: [-2100,700]
