@@ -3,15 +3,16 @@ import numpy as np
 from yaml import Loader
 from datetime import timedelta
 
-def _get_top_dir(path):
-    p=pathlib.Path(path)
-    return p.parents[len(p.parents)-2]
 
 class project_base():
 
     def __init__(self):
         self.COPY_FILES=[]
         self.PROJECT_SCRIPT=''
+
+    def get_top_dir(self,path):
+        p=pathlib.Path(path)
+        return p.parents[len(p.parents)-2]
 
     def parse_project_config(self,cfg):
         '''
@@ -73,23 +74,24 @@ class project_base():
             res['JOB_IMAGE_NAME']=res['SINGULARITY_IMAGE']
 
         # define paths to be bound to the singularity session
-        bind_points = []
-        bind_points.append(_get_top_dir(res['STORAGE_DIR']))
-        bind_points.append(_get_top_dir(res['SLURM_WORK_DIR']))
-        bind_points.append(_get_top_dir(res['JOB_IMAGE_NAME']))
-        bind_points.append(_get_top_dir(res['JOB_SOURCE_DIR']))
-        bflag = None
-        for pt in np.unique(bind_points):
-            if bflag is None:
-                bflag=f'-B {str(pt)}'
-            else:
-                bflag += f',{str(pt)}'
-        res['BIND_FLAG'] = bflag
+        self.BIND_PATHS.append(self.get_top_dir(res['STORAGE_DIR']))
+        self.BIND_PATHS.append(self.get_top_dir(res['SLURM_WORK_DIR']))
+        self.BIND_PATHS.append(self.get_top_dir(res['JOB_IMAGE_NAME']))
+        self.BIND_PATHS.append(self.get_top_dir(res['JOB_SOURCE_DIR']))
 
         return res
 
 
     def gen_submission_script(self,cfg):
+
+        # singularity bind flag
+        bflag = None
+        for pt in np.unique(self.BIND_PATHS):
+            if bflag is None:
+                bflag=f'-B {str(pt)}'
+            else:
+                bflag += f',{str(pt)}'
+
         script=f'''#!/bin/bash
 #SBATCH --job-name=dntp-{os.getpid()}
 #SBATCH --nodes=1
@@ -118,7 +120,7 @@ cd {cfg['JOB_WORK_DIR']}
 
 chmod 774 run.sh
 
-singularity exec --nv {cfg['BIND_FLAG']} {cfg['JOB_IMAGE_NAME']} ./run.sh
+singularity exec --nv {bflag} {cfg['JOB_IMAGE_NAME']} ./run.sh
 
 date
 echo "Copying the output"
@@ -187,7 +189,7 @@ scp -r {cfg['JOB_WORK_DIR']} {cfg['STORAGE_DIR']}/
                 f.close()
 
 
-        except (KeyError, OSError, IsADirectoryError) as e:
+        except (KeyError, ValueError, OSError, IsADirectoryError) as e:
             if os.path.isdir(jsdir):
                 shutil.rmtree(jsdir)
             if cfg['STORE_IMAGE'] and os.path.isfile(cfg['JOB_IMAGE_NAME']):
