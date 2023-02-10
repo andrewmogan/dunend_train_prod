@@ -1,6 +1,8 @@
 import glob, os
 import numpy as np
 import larnd2supera
+from project_base import project_base
+
 
 class project_larndsim(project_base):
 
