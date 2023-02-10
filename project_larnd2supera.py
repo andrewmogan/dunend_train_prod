@@ -66,7 +66,7 @@ date
 echo "Running Supera"
 export PATH=$HOME/.local/bin:$PATH
 echo {cmd_supera} $INPUT_FILE_NAME
-{cmd_supera} -n 10 $INPUT_FILE_NAME
+{cmd_supera} $INPUT_FILE_NAME
 date
 
 echo "Removing the input"

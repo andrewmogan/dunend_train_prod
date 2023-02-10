@@ -115,9 +115,14 @@ class project_base():
 mkdir -p {cfg['SLURM_WORK_DIR']} 
 cd {cfg['SLURM_WORK_DIR']}
 
-scp -r {cfg['JOB_SOURCE_DIR']} {cfg['JOB_WORK_DIR']}
+JOB_WORK_DIR=$(printf "job_%d_%04d" $SLURM_ARRAY_JOB_ID $SLURM_ARRAY_TASK_ID)
 
-cd {cfg['JOB_WORK_DIR']}
+scp -r {cfg['JOB_SOURCE_DIR']} $JOB_WORK_DIR
+
+cd $JOB_WORK_DIR
+
+printenv &> jobinfo_env.txt
+uname -a &> jobinfo_node.txt
 
 chmod 774 run.sh
 
@@ -127,7 +132,7 @@ date
 echo "Copying the output"
 
 cd ..
-scp -r {cfg['JOB_WORK_DIR']} {cfg['STORAGE_DIR']}/
+scp -r $JOB_WORK_DIR {cfg['STORAGE_DIR']}/
     
     '''
         return script

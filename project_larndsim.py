@@ -120,8 +120,6 @@ class project_larndsim(project_base):
 date
 echo "starting a job"
 
-printenv &> jobinfo_env.txt
-uname -a &> jobinfo_node.txt
 nvidia-smi &> jobinfo_gpu.txt
 
 OUTPUT_NAME={cfg['JOB_OUTPUT_ID']}
