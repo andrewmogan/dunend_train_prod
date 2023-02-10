@@ -64,14 +64,18 @@ scp $SOURCE_FILE_NAME $INPUT_FILE_NAME
 date
 
 echo "Running Supera"
+export PATH=$HOME/.local/bin:$PATH
+echo {cmd_supera} $INPUT_FILE_NAME
 {cmd_supera} $INPUT_FILE_NAME
 date
 
 echo "Removing the input"
+echo rm $INPUT_FILE_NAME
 rm $INPUT_FILE_NAME
 date
 
 echo "Touching the input filename"
+echo touch $INPUT_FILE_NAME
 touch $INPUT_FILE_NAME
 date
 
