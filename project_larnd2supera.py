@@ -4,7 +4,7 @@ import larnd2supera
 from project_base import project_base
 
 
-class project_larndsim(project_base):
+class project_larnd2supera(project_base):
 
     def parse_project_config(self,cfg):
 
@@ -78,3 +78,19 @@ date
 
 echo "Exiting"
         '''
+
+if __name__ == '__main__':
+    import sys
+    if not len(sys.argv) == 2:
+        print(f'Invalid number of the arguments ({len(sys.argv)})')
+        print(f'Usage: {os.path.basename(__file__)} $JOB_CONFIGURATION_YAML')
+        sys.exit(1)
+
+    if not sys.argv[1].endswith('.yaml'):
+        print('The argument must be a yaml file with .yaml extension.')
+        print(f'(provided: {os.path.basename(sys.argv[1])})')
+        sys.exit(2)
+
+    p=project_larnd2supera()
+    p.generate(sys.argv[1])
+    sys.exit(0)
