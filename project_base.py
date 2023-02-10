@@ -2,6 +2,7 @@ import yaml, os, pathlib, shutil
 import numpy as np
 from yaml import Loader
 from datetime import timedelta
+from project_base import project_base
 
 
 class project_base():
@@ -9,6 +10,7 @@ class project_base():
     def __init__(self):
         self.COPY_FILES=[]
         self.PROJECT_SCRIPT=''
+        self.BIND_PATHS=[]
 
     def get_top_dir(self,path):
         p=pathlib.Path(path)
