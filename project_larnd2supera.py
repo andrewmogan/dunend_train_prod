@@ -32,7 +32,7 @@ class project_larnd2supera(project_base):
         # create a filelist
         with open(os.path.join(cfg['JOB_SOURCE_DIR'],'flist.txt'),'w') as f:
             for name in filelist:
-                f.write(name)
+                f.write(name+'\n')
                 self.BIND_PATHS.append(self.get_top_dir(name))
 
         script = '''
