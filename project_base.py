@@ -193,7 +193,7 @@ scp -r {cfg['JOB_WORK_DIR']} {cfg['STORAGE_DIR']}/
             if cfg['STORE_IMAGE'] and os.path.isfile(cfg['JOB_IMAGE_NAME']):
                 os.remove(cfg['JOB_IMAGE_NAME'])
             if os.path.isdir(sdir):
-                os.rmdir(sdir)
+                shutil.rmtree(sdir)
             if os.path.isdir(ldir):
                 os.rmdir(ldir)
             print('Encountered an error. Aborting...')
