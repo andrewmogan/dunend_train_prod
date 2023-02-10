@@ -121,8 +121,8 @@ chmod 774 run.sh
 singularity exec --nv {cfg['BIND_FLAG']} {cfg['JOB_IMAGE_NAME']} ./run.sh
 
 date
-echo "Copying the output (removing response file as it's too large)"
-rm {os.path.basename(cfg['RESPONSE'])}
+echo "Copying the output"
+
 cd ..
 scp -r {cfg['JOB_WORK_DIR']} {cfg['STORAGE_DIR']}/
     
