@@ -38,7 +38,7 @@ class project_larnd2supera(project_base):
         script = '''
 import sys
 jobid = int(sys.argv[1])
-print(open('flist.txt','r').split()[jobid])
+print(open('flist.txt','r').read().split()[jobid])
         '''
         with open(os.path.join(cfg['JOB_SOURCE_DIR'],'input_name.py'),'w') as f:
             f.write(script)
