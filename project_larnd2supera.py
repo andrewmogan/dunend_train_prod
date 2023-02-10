@@ -49,8 +49,7 @@ print(open('flist.txt','r').read().split()[jobid])
 
         cmd_supera = f'''run_larnd2supera.py \
 -o {cfg['JOB_OUTPUT_ID']}-larcv.root \
--c {cfg['SUPERA_CONFIG']}
-        '''
+-c {cfg['SUPERA_CONFIG']}'''
 
         self.PROJECT_SCRIPT = f'''#!/bin/bash
 
