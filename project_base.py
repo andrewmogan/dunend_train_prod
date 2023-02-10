@@ -168,7 +168,6 @@ scp -r {cfg['JOB_WORK_DIR']} {cfg['STORAGE_DIR']}/
             #
             # Parse configuration for the project
             self.parse_project_config(cfg)
-            print(cfg)
             # Generate a project script contents
             self.gen_project_script(cfg)
             # Generate a job script
