@@ -52,7 +52,7 @@ print(open('flist.txt','r').read().split()[jobid])
 -c {cfg['SUPERA_CONFIG']}
         '''
 
-        script = f'''#!/bin/bash
+        self.PROJECT_SCRIPT = f'''#!/bin/bash
 
 echo "Starting a job"
 date
