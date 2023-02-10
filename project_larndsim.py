@@ -60,7 +60,10 @@ class project_larndsim(project_base):
 
     def gen_project_script(self,cfg):
 
-        self.gen_g4macro(os.path.basename(cfg['MPVMPR']))
+        macro = self.gen_g4macro(os.path.basename(cfg['MPVMPR']))
+        with open(cfg['G4_MACRO_PATH'],'w') as f:
+            f.write(macro)
+            f.close()
         self.gen_job_script(cfg)
 
         for key in REQUIRED.keys():
@@ -87,9 +90,7 @@ class project_larndsim(project_base):
 /generator/add
 
         '''
-        with open(cfg['G4_MACRO_PATH'],'w') as f:
-            f.write(macro)
-            f.close()
+        return macro
 
 
     def gen_job_script(self, cfg):
@@ -141,6 +142,8 @@ echo {cmd_larndsim}
 {cmd_larndsim} &>> log_larndsim.txt
 
 date
+echo "Removing the response file..."
+rm {os.path.basename(cfg['RESPONSE'])}
 echo "Exiting"
     
     '''
