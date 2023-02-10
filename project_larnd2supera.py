@@ -32,12 +32,12 @@ class project_larnd2supera(project_base):
         # create a filelist
         with open(os.path.join(cfg['JOB_SOURCE_DIR'],'flist.txt'),'w') as f:
             for name in filelist:
-                f.write(name+'\n')
+                f.write(os.path.abspath(name)+'\n')
                 self.BIND_PATHS.append(self.get_top_dir(name))
 
         script = '''
 import sys
-jobid = int(sys.argv[1])
+jobid = int(sys.argv[1])-1
 print(open('flist.txt','r').read().split()[jobid])
         '''
         with open(os.path.join(cfg['JOB_SOURCE_DIR'],'input_name.py'),'w') as f:
