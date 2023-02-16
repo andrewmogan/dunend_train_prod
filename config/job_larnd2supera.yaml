@@ -1,0 +1,16 @@
+STORAGE_DIR: /sdf/data/neutrino/$USER/dunend_train_prod/larnd2supera
+SINGULARITY_IMAGE: /sdf/group/neutrino/images/larcv2_ub20.04-cuda11.6-pytorch1.13-larndsim.sif
+STORE_IMAGE: False
+
+SLURM_WORK_DIR:  /lscratch/$USER
+SLURM_NUM_JOBS:  2        # number of jobs to submit
+SLURM_PARTITION: ampere   # partition
+SLURM_TIME:      20:00:00 # max time HH:MM:SS
+SLURM_MEM:       24       # total in GB
+SLURM_CPU:       6        # number of CPUs
+SLURM_NODELIST: ''
+SLURM_EXCLUDE:  ''
+
+# larnd2supera config
+SUPERA_CONFIG: tutorial
+GLOB: "/sdf/data/neutrino/$USER/dunend_train_prod/larndsim/production_*/job_*/*larndsim.h5"

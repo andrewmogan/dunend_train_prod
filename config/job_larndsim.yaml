@@ -1,15 +1,12 @@
-
-LARNDSIM_REPOSITORY: /app/larnd-sim
-LARNDSIM_SCRIPT: simulate_pixels.py
-STORAGE_DIR: ./storage
+STORAGE_DIR: /sdf/data/neutrino/$USER/dunend_train_prod/larnd-sim
 NUM_EVENTS:  10
-SINGULARITY_IMAGE: ../images/larcv2_ub20.04-cuda11.6-pytorch1.13-larndsim.sif
+SINGULARITY_IMAGE: /sdf/group/neutrino/images/larcv2_ub20.04-cuda11.6-pytorch1.13-larndsim.sif
 #SINGULARITY_IMAGE: /sdf/group/neutrino/images/develop.sif
 STORE_IMAGE: False
 
 SLURM_WORK_DIR:  /lscratch/$USER
-SLURM_NUM_JOBS:  1        # number of jobs to submit
-SLURM_PARTITION: neutrino # partition
+SLURM_NUM_JOBS:  2        # number of jobs to submit
+SLURM_PARTITION: ampere   # partition
 SLURM_GPU:       a100     # GPU type
 SLURM_TIME:      1:00:00  # max time HH:MM:SS
 SLURM_MEM:       40       # total in GB
@@ -17,11 +14,17 @@ SLURM_CPU:       4        # number of CPUs
 SLURM_NODELIST: ''
 SLURM_EXCLUDE:  ''
 
-# items found under larndsim
+#
+# Below are configurations specific to running simulations up to larndsim
+#
+LARNDSIM_REPOSITORY: /app/larnd-sim
+LARNDSIM_SCRIPT: simulate_pixels.py
+
+# items project_larndsim.py search under larnd-sim repository
 SEARCH_PIXEL_LAYOUT:   multi_tile_layout-3.0.40.yaml
 SEARCH_DET_PROPERTIES: ndlar-module.yaml
 SEARCH_RESPONSE:       response_38.npy
 
-# items found under dunend_train_prod
+# items project_larndsim.py search under dunend_train_prod repository
 SEARCH_GEOMETRY: nd_hall_only_lar_TRUE_1.gdml
 SEARCH_MPVMPR:   bomb.yaml

@@ -42,10 +42,10 @@ class project_base():
         # Check the storage directory and create this job's output directory
         if not 'STORAGE_DIR' in cfg:
             raise KeyError('STORAGE_DIR key is missing in the configuration file.')
-        if not os.path.isdir(cfg['STORAGE_DIR']):
+        if not os.path.isdir(os.path.expandvars(cfg['STORAGE_DIR'])):
             raise FileNotFoundError(f'Storage path {cfg["STORAGE_DIR"]} is invalid.')
 
-        sdir=os.path.abspath(os.path.join(cfg['STORAGE_DIR'],f'production_{os.getpid()}'))
+        sdir=os.path.abspath(os.path.join(os.path.expandvars(cfg['STORAGE_DIR']),f'production_{os.getpid()}'))
         if os.path.isdir(sdir):
             raise OSError(f'Storage directory already have a sub-dir {sdir}')
         res['STORAGE_DIR']=sdir
@@ -61,10 +61,10 @@ class project_base():
         # ensure singularity image is valid
         if not 'SINGULARITY_IMAGE' in cfg:
             raise KeyError('SINGULARITY_IMAGE must be specified in the config.')
-        if not os.path.isfile(cfg['SINGULARITY_IMAGE']):
+        if not os.path.isfile(os.path.expandvars(cfg['SINGULARITY_IMAGE'])):
             raise FileNotFoundError(f'Singularity image invalid in the config:{cfg["SINGULARITY_IMAGE"]}')
         # resolve symbolic link
-        res['SINGULARITY_IMAGE']=os.path.abspath(os.path.realpath(cfg['SINGULARITY_IMAGE']))
+        res['SINGULARITY_IMAGE']=os.path.abspath(os.path.realpath(os.path.expandvars(cfg['SINGULARITY_IMAGE'])))
 
         # define a copied image name
         if cfg.get('STORE_IMAGE',True):
@@ -97,7 +97,7 @@ class project_base():
 #SBATCH --nodes=1
 #SBATCH --partition={cfg['SLURM_PARTITION']}
 #SBATCH --output={cfg['JOB_LOG_DIR']}/slurm-%A-%a.out
-#SBATCH --error={cfg['JOB_LOG_DIR']}/slurm-%A-%a.err
+#SBATCH --error={cfg['JOB_LOG_DIR']}/slurm-%A-%a.out
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task={cfg['SLURM_CPU']}
 #SBATCH --mem-per-cpu={round(cfg['SLURM_MEM']/cfg['SLURM_CPU'])}G
