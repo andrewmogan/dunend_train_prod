@@ -1,6 +1,3 @@
-[submodule "larnd-sim"]
-	path = larnd-sim
-	url = https://github.com/drinkingkazu/larnd-sim
 [submodule "larpix_readout_parser"]
 	path = larpix_readout_parser
 	url = https://github.com/drinkingkazu/larpix_readout_parser

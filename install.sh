@@ -1,6 +1,7 @@
 #!/bin/bash
 echo "initiating submodules"
 git submodule init
+git submodule update
 
 echo "installing larnd-sim"
 cd larnd-sim
