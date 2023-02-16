@@ -1,0 +1,15 @@
+[submodule "larnd-sim"]
+	path = larnd-sim
+	url = https://github.com/drinkingkazu/larnd-sim
+[submodule "larpix_readout_parser"]
+	path = larpix_readout_parser
+	url = https://github.com/drinkingkazu/larpix_readout_parser
+[submodule "SuperaAtomic"]
+	path = SuperaAtomic
+	url = https://github.com/DeepLearnPhysics/SuperaAtomic
+[submodule "edep2supera"]
+	path = edep2supera
+	url = https://github.com/DeepLearnPhysics/edep2supera
+[submodule "larnd2supera"]
+	path = larnd2supera
+	url = https://github.com/DeepLearnPhysics/larnd2supera
