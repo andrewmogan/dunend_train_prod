@@ -121,6 +121,8 @@ scp -r {cfg['JOB_SOURCE_DIR']} $JOB_WORK_DIR
 
 cd $JOB_WORK_DIR
 
+export PATH=$HOME/.local/bin:$PATH
+
 printenv &> jobinfo_env.txt
 uname -a &> jobinfo_node.txt
 

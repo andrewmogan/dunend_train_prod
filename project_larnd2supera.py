@@ -56,6 +56,8 @@ print(open('flist.txt','r').read().split()[jobid])
 echo "Starting a job"
 date
 
+export PATH=$HOME/.local/bin:$PATH
+
 echo "Copying a file"
 SOURCE_FILE_NAME=`python3 input_name.py $SLURM_ARRAY_TASK_ID`
 INPUT_FILE_NAME=`basename $SOURCE_FILE_NAME`

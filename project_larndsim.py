@@ -111,7 +111,7 @@ class project_larndsim(project_base):
 --detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
 --response_file={os.path.basename(cfg['RESPONSE'])} \
 --event_separator=eventID \
---save_memory='resource.npz' \
+--save_memory='resource.h5' \
 --input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
 --output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5
     '''
@@ -119,6 +119,8 @@ class project_larndsim(project_base):
         self.PROJECT_SCRIPT=f'''#!/bin/bash
 date
 echo "starting a job"
+
+export PATH=$HOME/.local/bin:$PATH
 
 nvidia-smi &> jobinfo_gpu.txt
 
