@@ -3,6 +3,17 @@ echo "initiating submodules"
 git submodule init
 git submodule update
 
+echo "installing larnd-sim"
+cd modules/larnd-sim
+export SKIP_CUPY_INSTALL=1
+pip install . --user
+if [ $? -gt 0 ]
+then
+    echo "Failed to install larnd-sim"
+    exit 1
+fi
+cd -
+
 echo "installing event parser"
 cd modules/larpix_readout_parser
 pip install . --user

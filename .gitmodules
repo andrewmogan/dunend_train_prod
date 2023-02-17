@@ -10,3 +10,6 @@
 [submodule "modules/edep2supera"]
 	path = modules/edep2supera
 	url = https://github.com/DeepLearnPhysics/edep2supera
+[submodule "modules/larnd-sim"]
+	path = modules/larnd-sim
+	url = https://github.com/drinkingkazu/larnd-sim
