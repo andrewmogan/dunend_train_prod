@@ -19,7 +19,7 @@ class project_larnd2supera(project_base):
             self.COPY_FILES.append(cfg['SUPERA_CONFIG'])
             cfg['SUPERA_CONFIG'] = os.path.basename(cfg['SUPERA_CONFIG'])
 
-        filelist = glob.glob(cfg['GLOB'])
+        filelist = glob.glob(os.path.expandvars(cfg['GLOB']))
         if len(filelist) < 1:
             raise KeyError(f'GLOB {cfg["GLOB"]} returned no file!')
 

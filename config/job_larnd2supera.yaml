@@ -13,4 +13,4 @@ SLURM_EXCLUDE:  ''
 
 # larnd2supera config
 SUPERA_CONFIG: tutorial
-GLOB: "/sdf/data/neutrino/$USER/dunend_train_prod/larndsim/production_*/job_*/*larndsim.h5"
+GLOB: "/sdf/data/neutrino/$USER/dunend_train_prod/larnd-sim/production_*/job_*/*larndsim.h5"
