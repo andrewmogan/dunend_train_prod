@@ -31,4 +31,4 @@ SET_LIGHT_SIMULATION:   False
 
 # items project_larndsim.py search under dunend_train_prod repository
 SEARCH_GEOMETRY: arc2x2_sensLAr.gdml
-SEARCH_MPVMPR:   bomb.yaml
+SEARCH_MPVMPR:   mpvmpr_2x2.yaml
