@@ -8,12 +8,13 @@ from project_base import project_base
 
 REQUIRED = dict(GEOMETRY=os.path.join(pathlib.Path(__file__).parent.resolve(),'geometry'),
     MPVMPR=os.path.join(pathlib.Path(__file__).parent.resolve(),'config'),
+    SIM_PROPERTIES='larndsim/simulation_properties/',
     PIXEL_LAYOUT='larndsim/pixel_layouts/',
     DET_PROPERTIES='larndsim/detector_properties/',
+    RESPONSE='larndsim/bin',
     LIGHT_LUT='larndsim/bin',
     LIGHT_DET_NOISE='larndsim/bin',
     LIGHT_SIMULATION=False,
-    RESPONSE='larndsim/bin',
     )
 
 class project_larndsim(project_base):
@@ -77,7 +78,8 @@ class project_larndsim(project_base):
         self.gen_job_script(cfg)
 
         for key in REQUIRED.keys():
-            self.COPY_FILES.append(cfg[key])
+            if type(REQUIRED[key]) == str:
+                self.COPY_FILES.append(cfg[key])
 
 
     def gen_g4macro(self, mpv_config):
