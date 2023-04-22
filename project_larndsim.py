@@ -10,6 +10,9 @@ REQUIRED = dict(GEOMETRY=os.path.join(pathlib.Path(__file__).parent.resolve(),'g
     MPVMPR=os.path.join(pathlib.Path(__file__).parent.resolve(),'config'),
     PIXEL_LAYOUT='larndsim/pixel_layouts/',
     DET_PROPERTIES='larndsim/detector_properties/',
+    LIGHT_LUT='larndsim/bin',
+    LIGHT_DET_NOISE='larndsim/bin',
+    LIGHT_SIMULATION=False,
     RESPONSE='larndsim/bin',
     )
 
@@ -23,15 +26,18 @@ class project_larndsim(project_base):
         for word in REQUIRED.keys():
             opt1 = 'USE_' + word
             opt2 = 'SEARCH_' + word
-            
-            if opt1 in cfg and opt2 in cfg:
-                print(f'ERROR: both "USE" and "SEARCH" requested for {word} (only one is allowed).')
-                print(f'{opt1}: {cfg[opt1]}')
-                print(f'{opt2}: {cfg[opt2]}')
+            opt3 = 'SET_' + word
+
+            duplicate = int(opt1 in cfg) + int(opt2 in cfg) + int(opt3 in cfg)
+            if duplicate > 1:
+                print(f'ERROR: only one of "USE"/"SEARCH"/"SET can be requested for {word}.')
+                print(f'{opt1}: {cfg.get(opt1,None)}')
+                print(f'{opt2}: {cfg.get(opt2,None)}')
+                print(f'{opt2}: {cfg.get(opt3,None)}')
                 raise ValueError('Please fix the configuration file.')
                 
-            if not opt1 in cfg and not opt2 in cfg:
-                print(f'ERROR: keyword not found (need either USE_{word} or SEARCH_{word})')
+            if duplicate == 0:
+                print(f'ERROR: keyword not found (need either USE_{word} or SEARCH_{word} or SET_{word})')
                 print(f'{cfg}')
                 raise ValueError('Please fix the configuration file.')
 
@@ -57,6 +63,10 @@ class project_larndsim(project_base):
                     raise FileNotFoundError(f'{path}')
 
                 cfg[word]=path
+
+            # option 3: set the option to the specified value w/o check
+            if opt3 in cfg:
+                cfg[word]=cfg[opt3]
 
     def gen_project_script(self,cfg):
 
@@ -110,6 +120,9 @@ class project_larndsim(project_base):
 --pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT'])} \
 --detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
 --response_file={os.path.basename(cfg['RESPONSE'])} \
+--light_lut_filename={os.path.basename(cfg['LIGHT_LUT'])} \
+--light_det_noise_filename={os.path.basename(cfg['LIGHT_DET_NOISE'])} \
+--light_simulated={str(cfg['LIGHT_SIMULATION'])} \
 --event_separator=eventID \
 --save_memory='resource.h5' \
 --input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
