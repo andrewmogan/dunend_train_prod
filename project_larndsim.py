@@ -119,6 +119,7 @@ class project_larndsim(project_base):
     '''
 
         cmd_larndsim = f'''{cfg['LARNDSIM_SCRIPT']} \
+--simulation_properties={os.path.basename(cfg['SIM_PROPERTIES'])} \
 --pixel_layout={os.path.basename(cfg['PIXEL_LAYOUT'])} \
 --detector_properties={os.path.basename(cfg['DET_PROPERTIES'])} \
 --response_file={os.path.basename(cfg['RESPONSE'])} \
