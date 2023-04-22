@@ -157,7 +157,7 @@ scp -r $JOB_WORK_DIR {cfg['STORAGE_DIR']}/
         try:
             # Report the job top directory and clean-up method
             print(f'Constructing a new production with ID {os.getpid()}')
-            print('To clean up this production, simply execute the master directory:')
+            print('\nTo clean up this production, simply execute the master directory:')
             print(f'\n    rm -r {sdir}\n')
             # Create the job source and the storage directories
             print(f'Creating a dir: {sdir}')
