@@ -126,8 +126,6 @@ class project_larndsim(project_base):
 --light_lut_filename={os.path.basename(cfg['LIGHT_LUT'])} \
 --light_det_noise_filename={os.path.basename(cfg['LIGHT_DET_NOISE'])} \
 --light_simulated={str(cfg['LIGHT_SIMULATION'])} \
---event_separator=eventID \
---save_memory='resource.h5' \
 --input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
 --output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5
     '''
