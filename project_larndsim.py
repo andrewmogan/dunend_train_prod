@@ -111,12 +111,12 @@ class project_larndsim(project_base):
 -g {os.path.basename(cfg['GEOMETRY'])} \
 -e {int(cfg['NUM_EVENTS'])} \
 -o {cfg['JOB_OUTPUT_ID']}-edepsim.root \
-{os.path.basename(cfg['G4_MACRO_PATH'])}
-    '''
+{os.path.basename(cfg['G4_MACRO_PATH'])} \
+'''
 
         cmd_dumptree = f'''dumpTree.py \
-    {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5
-    '''
+    {cfg['JOB_OUTPUT_ID']}-edepsim.root {cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
+'''
 
         cmd_larndsim = f'''{cfg['LARNDSIM_SCRIPT']} \
 --simulation_properties={os.path.basename(cfg['SIM_PROPERTIES'])} \
@@ -127,8 +127,8 @@ class project_larndsim(project_base):
 --light_det_noise_filename={os.path.basename(cfg['LIGHT_DET_NOISE'])} \
 --light_simulated={str(cfg['LIGHT_SIMULATION'])} \
 --input_filename={cfg['JOB_OUTPUT_ID']}-edepsim.h5 \
---output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5
-    '''
+--output_filename={cfg['JOB_OUTPUT_ID']}-larndsim.h5 \
+'''
 
         self.PROJECT_SCRIPT=f'''#!/bin/bash
 date
@@ -140,27 +140,37 @@ nvidia-smi &> jobinfo_gpu.txt
 
 OUTPUT_NAME={cfg['JOB_OUTPUT_ID']}
 
+
 date
 echo "Running edep-sim"
+
 echo {cmd_edepsim}
+
 {cmd_edepsim} &>> log_edepsim.txt
+
 
 date
 echo "Running dumpTree"
+
 echo {cmd_dumptree}
+
 {cmd_dumptree} &>> log_dumptree.txt
+
 
 date
 echo "Running larnd-sim"
+
 echo {cmd_larndsim}
+
 {cmd_larndsim} &>> log_larndsim.txt
 
 date
 echo "Removing the response file..."
 rm {os.path.basename(cfg['RESPONSE'])}
+
 echo "Exiting"
     
-    '''
+'''
 
 if __name__ == '__main__':
     import sys
