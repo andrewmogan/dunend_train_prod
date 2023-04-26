@@ -1,6 +1,9 @@
-[submodule "modules/larnd-sim"]
-	path = modules/larnd-sim
-	url = https://github.com/dune/larnd-sim
+[submodule "modules/larpix_readout_parser"]
+	path = modules/larpix_readout_parser
+	url = https://github.com/drinkingkazu/larpix_readout_parser
+[submodule "modules/larnd2supera"]
+	path = modules/larnd2supera
+	url = https://github.com/andrewmogan/larnd2supera.git
 [submodule "modules/SuperaAtomic"]
 	path = modules/SuperaAtomic
 	url = https://github.com/DeepLearnPhysics/SuperaAtomic
